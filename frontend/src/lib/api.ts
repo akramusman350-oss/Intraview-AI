@@ -341,11 +341,17 @@ export interface SessionsResponse {
 }
 
 export const sessionsAPI = {
-  getLive: async (page = 1, limit = 10): Promise<SessionsResponse> => {
-    return apiCall(`/admin/sessions/live?page=${page}&limit=${limit}`);
+  getLive: async (page = 1, limit = 10, candidateId?: string): Promise<SessionsResponse> => {
+    const url = candidateId 
+      ? `/admin/sessions/live?page=${page}&limit=${limit}&candidate_id=${candidateId}`
+      : `/admin/sessions/live?page=${page}&limit=${limit}`;
+    return apiCall(url);
   },
-  getHistory: async (page = 1, limit = 10): Promise<SessionsResponse> => {
-    return apiCall(`/admin/sessions/history?page=${page}&limit=${limit}`);
+  getHistory: async (page = 1, limit = 10, candidateId?: string): Promise<SessionsResponse> => {
+    const url = candidateId 
+      ? `/admin/sessions/history?page=${page}&limit=${limit}&candidate_id=${candidateId}`
+      : `/admin/sessions/history?page=${page}&limit=${limit}`;
+    return apiCall(url);
   },
   get: async (id: string): Promise<Session> => apiCall(`/admin/sessions/${id}`),
 };

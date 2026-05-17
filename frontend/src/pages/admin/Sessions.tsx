@@ -69,9 +69,20 @@ export default function AdminSessions() {
     }
   };
 
+  const formatScore = (score?: any) => {
+    if (score === undefined || score === null || score === 'N/A') return '-';
+    const scoreStr = String(score);
+    if (scoreStr.endsWith('%')) return scoreStr;
+    return `${scoreStr}%`;
+  };
+
   const handleViewSession = (session: Session) => {
-    setSelectedSession(session);
-    setIsViewDialogOpen(true);
+    if (session.status === 'completed') {
+      navigate(`/interview/${session.id}/report`, { state: { from: 'admin' } });
+    } else {
+      setSelectedSession(session);
+      setIsViewDialogOpen(true);
+    }
   };
 
   const formatDate = (dateString?: string) => {
@@ -148,11 +159,7 @@ export default function AdminSessions() {
             {showStatus && <TableCell>{getStatusBadge(session.status)}</TableCell>}
             {showStatus && (
               <TableCell>
-                {session.score !== undefined ? (
-                  <span className="font-medium">{session.score}%</span>
-                ) : (
-                  '-'
-                )}
+                <span className="font-medium">{formatScore(session.score)}</span>
               </TableCell>
             )}
             <TableCell className="text-right">
@@ -285,7 +292,7 @@ export default function AdminSessions() {
                   {selectedSession.score !== undefined && (
                     <div>
                       <p className="text-sm text-muted-foreground">Overall Score</p>
-                      <p className="font-medium text-lg">{selectedSession.score}%</p>
+                      <p className="font-medium text-lg">{formatScore(selectedSession.score)}</p>
                     </div>
                   )}
                   {selectedSession.progress !== undefined && (

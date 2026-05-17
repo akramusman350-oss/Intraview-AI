@@ -97,10 +97,20 @@ const ReportView: React.FC = () => {
               Print HTML
             </button>
             <button 
-              onClick={() => fromReports ? navigate('/candidate/reports') : navigate('/candidate/dashboard')}
+              onClick={() => {
+                if (location.state?.from === 'admin') {
+                  navigate('/admin/sessions');
+                } else if (location.state?.from === 'users') {
+                  navigate('/admin/users', { state: { viewUserId: location.state?.candidateId } });
+                } else if (fromReports) {
+                  navigate('/candidate/reports');
+                } else {
+                  navigate('/candidate/dashboard');
+                }
+              }}
               className="px-5 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-white border border-white/10 transition-colors"
             >
-              {fromReports ? '← Back' : 'Back'}
+              {location.state?.from ? '← Back to Admin' : (fromReports ? '← Back' : 'Back')}
             </button>
           </div>
         </div>
