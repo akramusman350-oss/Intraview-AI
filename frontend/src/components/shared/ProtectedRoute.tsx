@@ -34,8 +34,8 @@ export function ProtectedRoute({ children, requireAdmin = false }: ProtectedRout
 
     if (!requireAdmin && isAdmin) {
       // Authenticated as admin but trying to access candidate route
-      // (Optional: depending on your app rules, admins might not need candidate routes)
-      if (location.pathname.startsWith('/candidate') || location.pathname.startsWith('/interview')) {
+      // Admins are allowed to view completed interview reports, but not live candidate interview rooms
+      if (location.pathname.startsWith('/candidate') || (location.pathname.startsWith('/interview') && !location.pathname.endsWith('/report'))) {
         navigate('/admin/dashboard', { replace: true });
       }
       return;
@@ -53,7 +53,7 @@ export function ProtectedRoute({ children, requireAdmin = false }: ProtectedRout
   // Prevent rendering children if unauthorized (while redirect is processing)
   if (!isAuthenticated) return null;
   if (requireAdmin && !isAdmin) return null;
-  if (!requireAdmin && isAdmin && (location.pathname.startsWith('/candidate') || location.pathname.startsWith('/interview'))) return null;
+  if (!requireAdmin && isAdmin && (location.pathname.startsWith('/candidate') || (location.pathname.startsWith('/interview') && !location.pathname.endsWith('/report')))) return null;
 
   return <>{children}</>;
 }

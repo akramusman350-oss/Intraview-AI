@@ -384,7 +384,6 @@ export default function AdminUsers() {
                                     </div>
                                   </div>
                                   <div className="flex items-center gap-2">
-                                    {getStatusBadge(session.status)}
                                     {session.status === 'completed' && (
                                       <Button 
                                         variant="outline" 
@@ -437,7 +436,6 @@ export default function AdminUsers() {
                                     </div>
                                   </div>
                                   <div className="flex items-center gap-2">
-                                    {getStatusBadge(session.status)}
                                     {session.status === 'completed' && (
                                       <Button 
                                         variant="outline" 
