@@ -31,11 +31,14 @@ async def get_live_sessions(
     admin: dict = Depends(get_current_admin),
     page: int = Query(1, ge=1),
     limit: int = Query(10, ge=1, le=50),
+    candidate_id: Optional[str] = Query(None),
 ):
     """Get active/live interview sessions."""
     try:
         skip = (page - 1) * limit
         query = {"status": "active"}
+        if candidate_id:
+            query["candidate_id"] = candidate_id
         
         total = await db["interview_sessions"].count_documents(query)
         print(f"[Sessions API] Live sessions query: {query}, total: {total}, page: {page}, limit: {limit}")
@@ -111,11 +114,14 @@ async def get_session_history(
     admin: dict = Depends(get_current_admin),
     page: int = Query(1, ge=1),
     limit: int = Query(10, ge=1, le=50),
+    candidate_id: Optional[str] = Query(None),
 ):
     """Get completed/cancelled interview sessions."""
     try:
         skip = (page - 1) * limit
         query = {"status": {"$in": ["completed", "cancelled"]}}
+        if candidate_id:
+            query["candidate_id"] = candidate_id
         
         total = await db["interview_sessions"].count_documents(query)
         print(f"[Sessions API] History query: {query}, total: {total}, page: {page}, limit: {limit}")
