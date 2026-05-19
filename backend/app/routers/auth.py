@@ -88,6 +88,21 @@ async def signup_candidate(payload: SignupRequest, db: AsyncIOMotorDatabase = De
     if existing:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email already registered")
 
+    # Validate name requirements
+    if payload.name:
+        name_trimmed = payload.name.strip()
+        if not name_trimmed:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Full Name is required"
+            )
+        import re
+        if not re.match(r"^[a-zA-Z\s]+$", name_trimmed):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Name must only contain letters and spaces (no numbers or special characters)"
+            )
+
     # Validate password requirements
     password_errors = validate_password_requirements(payload.password)
     if password_errors:

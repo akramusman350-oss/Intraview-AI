@@ -106,6 +106,25 @@ export default function Auth() {
     e.preventDefault();
     setIsLoading(true);
 
+    const trimmedName = signupForm.fullName.trim();
+    if (!trimmedName) {
+      toast.error('Full Name is required');
+      setIsLoading(false);
+      return;
+    }
+    if (!/^[a-zA-Z\s]+$/.test(trimmedName)) {
+      toast.error('Name must only contain letters and spaces (no numbers or special characters)');
+      setIsLoading(false);
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(signupForm.email)) {
+      toast.error('Please enter a valid email address');
+      setIsLoading(false);
+      return;
+    }
+
     if (signupForm.password.length < 8) {
       toast.error('Password must be at least 8 characters'); setIsLoading(false); return;
     }
@@ -598,7 +617,7 @@ export default function Auth() {
                               placeholder="Full Name"
                               className="pl-10"
                               value={signupForm.fullName}
-                              onChange={(e) => setSignupForm({ ...signupForm, fullName: e.target.value })}
+                              onChange={(e) => setSignupForm({ ...signupForm, fullName: e.target.value.replace(/[^a-zA-Z\s]/g, '') })}
                             />
                           </div>
                         </div>
