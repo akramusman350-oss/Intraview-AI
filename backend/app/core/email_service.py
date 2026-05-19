@@ -47,6 +47,52 @@ def send_via_resend(recipient_email: str, subject: str, html_content: str, text_
         return False
 
 
+def send_via_brevo(recipient_email: str, subject: str, html_content: str, text_content: str) -> bool:
+    api_key = os.getenv("BREVO_API_KEY")
+    if not api_key:
+        return False
+    
+    sender_email = os.getenv("NODEMAILER_EMAIL", "intraviewwai@gmail.com")
+    
+    try:
+        url = "https://api.brevo.com/v3/smtp/email"
+        headers = {
+            "api-key": api_key,
+            "content-type": "application/json",
+            "accept": "application/json"
+        }
+        
+        payload = {
+            "sender": {
+                "name": "IntraView AI",
+                "email": sender_email
+            },
+            "to": [
+                {
+                    "email": recipient_email
+                }
+            ],
+            "subject": subject,
+            "htmlContent": html_content,
+            "textContent": text_content
+        }
+        
+        req = urllib.request.Request(
+            url, 
+            data=json.dumps(payload).encode("utf-8"),
+            headers=headers,
+            method="POST"
+        )
+        
+        with urllib.request.urlopen(req) as response:
+            res_body = response.read().decode("utf-8")
+            print(f"[BREVO] Email sent successfully to {recipient_email}. Response: {res_body}")
+            return True
+    except Exception as e:
+        print(f"[BREVO] Error sending email via Brevo: {e}")
+        return False
+
+
 def send_invitation_email(
     recipient_email: str,
     recipient_name: str,
@@ -156,6 +202,12 @@ def send_invitation_email(
         # Attach both versions
         msg.attach(MIMEText(text_content, "plain"))
         msg.attach(MIMEText(html_content, "html"))
+
+        # Check if Brevo is configured (checks environment variable)
+        if os.getenv("BREVO_API_KEY"):
+            sent_brevo = send_via_brevo(recipient_email, "You're Invited to Join IntraView AI", html_content, text_content)
+            if sent_brevo:
+                return True
 
         # Check if Resend API is configured
         if os.getenv("RESEND_API_KEY"):
@@ -270,6 +322,12 @@ def send_password_reset_otp_email(recipient_email: str, otp: str) -> bool:
         msg.attach(MIMEText(text_content, "plain"))
         msg.attach(MIMEText(html_content, "html"))
 
+        # Check if Brevo is configured (checks environment variable)
+        if os.getenv("BREVO_API_KEY"):
+            sent_brevo = send_via_brevo(recipient_email, "IntraView AI - Password Reset OTP", html_content, text_content)
+            if sent_brevo:
+                return True
+
         # Check if Resend API is configured
         if os.getenv("RESEND_API_KEY"):
             return send_via_resend(recipient_email, "IntraView AI - Password Reset OTP", html_content, text_content)
@@ -360,6 +418,12 @@ def send_signup_otp_email(recipient_email: str, otp: str, name: str = "") -> boo
 
         msg.attach(MIMEText(text_content, "plain"))
         msg.attach(MIMEText(html_content, "html"))
+
+        # Check if Brevo is configured (checks environment variable)
+        if os.getenv("BREVO_API_KEY"):
+            sent_brevo = send_via_brevo(recipient_email, "IntraView AI - Verify Your Email", html_content, text_content)
+            if sent_brevo:
+                return True
 
         # Check if Resend API is configured
         if os.getenv("RESEND_API_KEY"):
