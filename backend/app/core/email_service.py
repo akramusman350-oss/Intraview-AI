@@ -3,6 +3,48 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from typing import Optional
+import urllib.request
+import json
+
+
+def send_via_resend(recipient_email: str, subject: str, html_content: str, text_content: str) -> bool:
+    api_key = os.getenv("RESEND_API_KEY")
+    if not api_key:
+        return False
+    
+    sender_email = os.getenv("NODEMAILER_EMAIL", "onboarding@resend.dev")
+    # If using Gmail/default, fallback to onboarding@resend.dev for Resend to avoid SPF/DKIM verification block
+    if "gmail.com" in sender_email or "intraviewwai" in sender_email:
+        sender_email = "onboarding@resend.dev"
+        
+    try:
+        url = "https://api.resend.com/emails"
+        headers = {
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json"
+        }
+        payload = {
+            "from": f"IntraView AI <{sender_email}>",
+            "to": [recipient_email],
+            "subject": subject,
+            "html": html_content,
+            "text": text_content
+        }
+        
+        req = urllib.request.Request(
+            url, 
+            data=json.dumps(payload).encode("utf-8"),
+            headers=headers,
+            method="POST"
+        )
+        
+        with urllib.request.urlopen(req) as response:
+            res_body = response.read().decode("utf-8")
+            print(f"[RESEND] Email sent successfully to {recipient_email}. Response: {res_body}")
+            return True
+    except Exception as e:
+        print(f"[RESEND] Error sending email: {e}")
+        return False
 
 
 def send_invitation_email(
@@ -115,6 +157,10 @@ def send_invitation_email(
         msg.attach(MIMEText(text_content, "plain"))
         msg.attach(MIMEText(html_content, "html"))
 
+        # Check if Resend API is configured
+        if os.getenv("RESEND_API_KEY"):
+            return send_via_resend(recipient_email, "You're Invited to Join IntraView AI", html_content, text_content)
+
         # Send email
         with smtplib.SMTP(smtp_server, smtp_port) as server:
             server.starttls()
@@ -224,6 +270,10 @@ def send_password_reset_otp_email(recipient_email: str, otp: str) -> bool:
         msg.attach(MIMEText(text_content, "plain"))
         msg.attach(MIMEText(html_content, "html"))
 
+        # Check if Resend API is configured
+        if os.getenv("RESEND_API_KEY"):
+            return send_via_resend(recipient_email, "IntraView AI - Password Reset OTP", html_content, text_content)
+
         # Send email
         with smtplib.SMTP(smtp_server, smtp_port) as server:
             server.starttls()
@@ -310,6 +360,10 @@ def send_signup_otp_email(recipient_email: str, otp: str, name: str = "") -> boo
 
         msg.attach(MIMEText(text_content, "plain"))
         msg.attach(MIMEText(html_content, "html"))
+
+        # Check if Resend API is configured
+        if os.getenv("RESEND_API_KEY"):
+            return send_via_resend(recipient_email, "IntraView AI - Verify Your Email", html_content, text_content)
 
         with smtplib.SMTP(smtp_server, smtp_port) as server:
             server.starttls()
