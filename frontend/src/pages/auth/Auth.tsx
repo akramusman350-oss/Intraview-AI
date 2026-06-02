@@ -59,7 +59,7 @@ function PasswordInput({
 
 export default function Auth() {
   const navigate = useNavigate();
-  const { signIn, signUp } = useAuth();
+  const { signIn, signUp, refreshUser } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('login');
 
@@ -94,6 +94,18 @@ export default function Auth() {
     setIsLoading(true);
     const { error } = await signIn(loginForm.email, loginForm.password);
     if (error) {
+      // If the user hasn't verified email yet, redirect to OTP screen
+      if (error.message?.includes('verify your email')) {
+        toast.info('Please verify your email first. We\'re sending a new code.');
+        setOtpEmail(loginForm.email);
+        setShowOTP(true);
+        // Resend OTP
+        try {
+          await callApi('/auth/send-signup-otp', { email: loginForm.email });
+        } catch {}
+        setIsLoading(false);
+        return;
+      }
       toast.error(error.message || 'Failed to sign in');
       setIsLoading(false);
       return;
@@ -170,6 +182,8 @@ export default function Auth() {
       if (result.access_token) {
         localStorage.setItem('auth_token', result.access_token);
         window.dispatchEvent(new CustomEvent('auth:token', { detail: result.access_token }));
+        // Refresh auth context so ProtectedRoute sees the user
+        await refreshUser();
       }
       toast.success('Email verified! Welcome to IntraView AI 🎉');
       navigate('/candidate/dashboard');

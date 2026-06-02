@@ -30,6 +30,7 @@ class User(BaseModel):
     created_at: datetime = Field(default_factory=datetime.utcnow)
     profile_info: Dict[str, Any] = Field(default_factory=dict)
     status: str = "active"
+    email_verified: bool = True
 
     class Config:
         allow_population_by_field_name = True

@@ -90,7 +90,7 @@ export default function CandidateDashboard() {
       <div className="space-y-8">
         {/* Header */}
         <div>
-          <h1 className="text-3xl font-bold">Welcome</h1>
+          <h1 className="text-3xl font-bold">Welcome {user?.profile_info?.name || ''}</h1>
         </div>
 
         {/* Stats Cards */}

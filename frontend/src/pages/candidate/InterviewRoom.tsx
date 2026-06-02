@@ -794,16 +794,18 @@ const InterviewRoom: React.FC = () => {
                   <div className="flex flex-col items-center gap-2">
                     <p className="text-red-400 text-sm">Microphone disconnected.</p>
                     <div className="flex gap-2">
-                      <Button onClick={startListening} size="sm" variant="outline" className="border-emerald-500 text-emerald-500 hover:bg-emerald-500/10">
+                      <button
+                        onClick={startListening}
+                        className="px-3 py-1.5 text-sm rounded-lg border border-emerald-500 text-emerald-500 hover:bg-emerald-500/10 transition-colors flex items-center"
+                      >
                         <Mic className="w-4 h-4 mr-1" /> Retry Mic
-                      </Button>
-                      <Button 
-                        onClick={() => submitCandidateAnswer(currentTranscriptRef.current || 'No answer provided')} 
-                        size="sm" 
-                        className="bg-primary hover:bg-primary/90 text-white"
+                      </button>
+                      <button
+                        onClick={() => submitCandidateAnswer(currentTranscriptRef.current || 'No answer provided')}
+                        className="px-3 py-1.5 text-sm rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white transition-colors"
                       >
                         Submit What I Said
-                      </Button>
+                      </button>
                     </div>
                   </div>
                 ) : (

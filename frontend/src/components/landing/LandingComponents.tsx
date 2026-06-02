@@ -24,6 +24,16 @@ export function Hero() {
           <span className="text-sm font-medium">AI-Powered Interview Platform</span>
         </motion.div>
 
+        {/* Brand name */}
+        <motion.h2
+          initial={{ opacity: 0, y: 25 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.55, delay: 0.05 }}
+          className="mb-3 text-center text-2xl font-semibold tracking-widest text-indigo-400 md:text-3xl"
+        >
+          IntraView AI
+        </motion.h2>
+
         {/* Main headline */}
         <motion.h1
           initial={{ opacity: 0, y: 30 }}

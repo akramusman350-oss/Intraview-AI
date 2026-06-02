@@ -60,17 +60,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signUp = async (email: string, password: string, fullName?: string) => {
     try {
-      // Register the user
+      // Register the user (do NOT auto-login — user must verify OTP first)
       await authAPI.signup({
         email,
         password,
         name: fullName,
       });
-
-      // Auto-login after signup
-      await authAPI.login(email, password);
-      const userData = await userAPI.getMe();
-      setUser(userData);
 
       return { error: null };
     } catch (error) {

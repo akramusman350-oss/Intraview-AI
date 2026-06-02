@@ -117,7 +117,8 @@ async def signup_candidate(payload: SignupRequest, db: AsyncIOMotorDatabase = De
         role="candidate",
         created_at=datetime.utcnow(),
         profile_info={"name": payload.name} if payload.name else {},
-        status="active",
+        status="pending",
+        email_verified=False,
     )
     user_dict = user.dict(by_alias=True, exclude_none=True)
     print(f"Creating candidate user: email={payload.email}, role={user_dict.get('role')}")
@@ -247,6 +248,13 @@ async def login(
             detail="Your account has been banned. Please contact the administrator."
         )
     
+    # Check if email is verified
+    if not user.get("email_verified", True):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Please verify your email before logging in. Check your inbox for the verification code."
+        )
+
     stored_hash = user.get("password_hash") or user.get("password")
     if not stored_hash or not verify_password(form_data.password, stored_hash):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Incorrect email or password")
